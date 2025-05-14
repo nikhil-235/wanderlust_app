@@ -1,0 +1,201 @@
+<%=layout("/layouts/boilerplate") %>
+
+<style>
+  .filters-container {
+    position: relative;
+    margin: 2rem 0;
+  }
+
+  #filters {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    gap: 2rem;
+    padding: 1rem 0;
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+  }
+
+  #filters::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
+  }
+
+  .filter {
+    height: 3.6rem;
+    text-align: center;
+    opacity: .7;
+    font-size: 1.4rem;
+    flex: 0 0 auto; /* Prevent shrinking/growing */
+  }
+
+  .filter:hover {
+    opacity: 1;
+    border-bottom: 1px solid #0002;
+    cursor: pointer;
+  }
+
+  .filter p {
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+  }
+
+  .tax-toggle {
+    border: 1px solid black !important;
+    height: 3rem !important;
+    padding: 1rem;
+    border-radius: 1rem;
+    margin-left: 2rem;
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+
+  .scroll-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    cursor: pointer;
+    z-index: 10;
+    border: none;
+    font-size: 1.2rem;
+  }
+
+  .scroll-arrow.left {
+    left: -20px;
+  }
+
+  .scroll-arrow.right {
+    right: -20px;
+  }
+
+  @media (max-width: 768px) {
+    .scroll-arrow {
+      display: none; /* Hide arrows on mobile */
+    }
+    #filters {
+      padding: 1rem;
+    }
+  }
+</style>
+
+<div class="filters-container">
+  <button class="scroll-arrow left"><i class="fa-solid fa-arrow-left"></i></button>
+  <div id="filters">
+    <div class="filter">
+      <div><i class="fa-solid fa-fire"></i></div>
+      <p>Trending</p>
+    </div>
+    <div class="filter">
+      <div><i class="fa-solid fa-bed"></i></div>
+      <p>Rooms</p>
+    </div>
+    <div class="filter">
+      <div><i class="fa-solid fa-mountain-city"></i></div>
+      <p>Iconic Cities</p>
+    </div>
+    <div class="filter">
+      <div><i class="fa-solid fa-mountain"></i></div>
+      <p>Mountains</p>
+    </div>
+    <div class="filter">
+      <div><i class="fa-solid fa-fort-awesome"></i></div>
+      <p>Castles</p>
+    </div>
+    <div class="filter">
+      <div><i class="fa-solid fa-person-swimming"></i></div>
+      <p>Amazing Pools</p>
+    </div>
+    <div class="filter">
+      <div><i class="fa-solid fa-campground"></i></div>
+      <p>Camping</p>
+    </div>
+    <div class="filter">
+      <div><i class="fa-solid fa-cow"></i></div>
+      <p>Farms</p>
+    </div>
+    <div class="filter">
+      <div><i class="fa-solid fa-snowflake"></i></div>
+      <p>Arctic</p>
+    </div>
+    <div class="filter">
+      <div><i class="fa-solid fa-igloo"></i></div>
+      <p>Domes</p>
+    </div>
+    <div class="filter">
+      <div><i class="fa-solid fa-ship"></i></div>
+      <p>Boats</p>
+    </div>
+    <div class="tax-toggle">
+      <div class="form-check-reverse form-switch">
+        <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault">
+        <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
+      </div>
+    </div>
+  </div>
+  <button class="scroll-arrow right"><i class="fa-solid fa-arrow-right"></i></button>
+</div>
+
+<div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-1 row-cols-xs-1 mt-3">
+  <% for(list of allListings) { %>
+    <a class="listing-link" href="/listings/<%= list.id %>">
+      <div class="card col listing-card">
+        <img src="<%= list.image.url %>" class="card-img-top" alt="listing" style="height: 20rem;">
+        <div class="card-img-overlay"></div>
+        <div class="card-body">
+          <p class="card-text">
+            <b><%= list.title %></b>
+            <br>&#8377; <%= list.price.toLocaleString("en-IN") %> /night 
+            <i class="tax-info">&nbsp;+18% GST</i>
+          </p>
+        </div>
+      </div>
+    </a>
+  <% } %>
+</div>
+
+<script>
+  // Tax toggle functionality
+  let taxSwitch = document.querySelector("#switchCheckDefault");
+  taxSwitch.addEventListener("click", () => {
+    let taxinfo = document.querySelectorAll(".tax-info");
+    for(info of taxinfo) {
+      info.style.display = info.style.display != "inline" ? "inline" : "none";
+    }
+  });
+
+  // Filter scrolling functionality
+  const filtersContainer = document.querySelector("#filters");
+  const leftArrow = document.querySelector(".scroll-arrow.left");
+  const rightArrow = document.querySelector(".scroll-arrow.right");
+  const scrollAmount = 300; // Adjust this value as needed
+
+  leftArrow.addEventListener("click", () => {
+    filtersContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+  });
+
+  rightArrow.addEventListener("click", () => {
+    filtersContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  });
+
+  // Hide arrows when at scroll extremes
+  const checkScrollPosition = () => {
+    const { scrollLeft, scrollWidth, clientWidth } = filtersContainer;
+    leftArrow.style.display = scrollLeft <= 0 ? 'none' : 'flex';
+    rightArrow.style.display = scrollLeft >= scrollWidth - clientWidth ? 'none' : 'flex';
+  };
+
+  // Initial check and event listener
+  checkScrollPosition();
+  filtersContainer.addEventListener("scroll", checkScrollPosition);
+
+  // Handle responsive behavior
+  window.addEventListener("resize", checkScrollPosition);
+</script>
